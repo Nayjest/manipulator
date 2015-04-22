@@ -64,12 +64,15 @@ Method returns names of successfully assigned properties.
 ##### Example
 
 ```php
+use Nayjest\Manipulator\Manipulator;
 
 class Target
 {
      public function setSomeProperty($value);
 }
+
 $target = new Target;
+
 $unassigned = Manipulator::assignBySetters($target, [
     'some_property' => 1,
     'some_other_property' => 2
