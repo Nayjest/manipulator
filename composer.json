@@ -18,7 +18,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-        "Nayjest\\Manipulator\\Test\\": "tests"
+            "Nayjest\\Manipulator\\Test\\": "tests"
+        }
     }
-  }
 }
