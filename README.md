@@ -1,8 +1,7 @@
 Manipulator
 =======
 
-PHP package for for performing manipulations with PHP objects.
-
+Utilities for performing manipulations with classes and objects.
 
 ## Installation
 
