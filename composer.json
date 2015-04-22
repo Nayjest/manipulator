@@ -1,0 +1,24 @@
+{
+    "name": "nayjest/manipulator",
+    "description": "Utilities for manipulating PHP objects",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vitalii Stepanenko",
+            "email": "mail@vitaliy.in"
+        }
+    ],
+    "require": {
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.*"
+    },
+    "autoload": {
+        "classmap": ["src/"]
+    },
+    "autoload-dev": {
+        "psr-4": {
+        "Nayjest\\Manipulator\\Test\\": "tests"
+    }
+  }
+}
