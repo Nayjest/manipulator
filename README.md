@@ -4,6 +4,7 @@ Manipulator
 Utilities for performing manipulations with classes and objects.
 
 [![Build Status](https://travis-ci.org/Nayjest/manipulator.svg)](https://travis-ci.org/Nayjest/manipulator)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Nayjest/manipulator/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Nayjest/manipulator/?branch=master)
 
 ## Installation
 
