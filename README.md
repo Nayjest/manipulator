@@ -22,6 +22,68 @@ composer require nayjest/manipulator
 
 ## Usage
 
+#### `Manipulator::instantiate($class, array $arguments = [])`
+
+Creates class instance using specified constructor arguments.
+
+Method returns instantiated object.
+
+##### Arguments
+
+* string $class &mdash; Target class name
+* array $arguments &mdash; Constructor arguments (optional)
+
+
+
+#### `Manipulator::assignPublicProperties($instance, array $fields)`
+
+Assigns values from array to existing public properties.
+
+Fields that has no corresponding properties in target object are ignored.
+
+Method returns array containing names of successfully assigned properties.
+
+##### Arguments
+
+* object $instance &mdash; Target object
+* array $fields &mdash; Fields to assign. Keys must be same as target object property names.
+
+#### `Manipulator::assignBySetters($instance, array $fields)`
+
+Assigns values from array to corresponding properties using setters.
+
+Fields that has no corresponding properties in target object are ignored.
+
+Method returns names of successfully assigned properties.
+
+##### Arguments
+
+* object $instance &mdash; Target object
+* array $fields &mdash; Fields to assign. Keys must be same as target object property names.
+
+##### Example
+
+```php
+
+class Target
+{
+     public function setSomeProperty($value);
+}
+$target = new Target;
+$unassigned = Manipulator::assignBySetters($target, [
+    'some_property' => 1,
+    'some_other_property' => 2
+]);
+# Manipulator::assignBySetters() will call $target->setSomeProperty(1).
+# Value of 'some_other_property' will be ignored.
+# $unassigned will contain array('some_other_property')
+```
+#### `Manipulator::assign($instance, array $fields)`
+
+Assigns values from array to object. 
+
+This method is just a combination of Manipulator::assignPublicProperties() and Manipulator::assignBySetters().
+
 ## Testing
 
 Run following command:
