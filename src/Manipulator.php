@@ -1,5 +1,6 @@
 <?php
 namespace Nayjest\Manipulator;
+
 use ReflectionClass;
 
 /**
