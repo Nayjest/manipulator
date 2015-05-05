@@ -1,9 +1,6 @@
 <?php
 namespace Nayjest\Manipulator;
-
-use Exception;
 use ReflectionClass;
-use RuntimeException;
 
 /**
  * Class Manipulator
