@@ -123,16 +123,20 @@ class Manipulator
     /**
      * Returns names of writable properties.
      *
-     * @param object|string|array $target
+     * For arrays, keys will be returned.
+     *
+     * If used with $useSetters option, corresponding property names in snake case will returned.
+     *
+     * @param object|string|array $src object or class name or array
      * @param bool $useSetters
      * @return array
      */
-    public static function getWritable($target, $useSetters = true)
+    public static function getWritable($src, $useSetters = true)
     {
-        if (is_array($target)) {
-            return array_keys($target);
+        if (is_array($src)) {
+            return array_keys($src);
         }
-        $class = is_object($target) ? get_class($target) : $target;
+        $class = is_object($src) ? get_class($src) : $src;
         $cacheKey = $class . ($useSetters?'+s':'');
         if (!array_key_exists($cacheKey, self::$writable)) {
             self::$writable[$cacheKey] = array_keys(get_class_vars($class));
@@ -146,26 +150,54 @@ class Manipulator
         return self::$writable[$cacheKey];
     }
 
-    protected static function getXMethods($key, $obj)
+    /**
+     * Returns methods with names started by specified keyword
+     * and followed by uppercase character.
+     *
+     * Examples:
+     *     - self::getMethodsByPrefix('get', $obj)
+     *       will return methods that looks like getters.
+     *
+     * @param string $keyword prefix
+     * @param object|string $src object or class name
+     * @return array|string[] method names
+     */
+    protected static function getMethodsByPrefix($keyword, $src)
     {
         $res = [];
-        $methods = get_class_methods($obj);
+        $methods = get_class_methods($src);
+        $keyLength = strlen($keyword);
         foreach ($methods as $method) {
-            if (strpos($method, $key) === 0 && strlen($method) > 3 && ctype_upper($method{3})) {
+            if (
+                strpos($method, $keyword) === 0
+                && strlen($method) > $keyLength
+                && ctype_upper($method[$keyLength])) {
                 $res[] = $method;
             }
         }
         return $res;
     }
 
-    public static function getSetters($obj)
+    /**
+     * Returns names of setters.
+     *
+     * @param object|string $src object or class name
+     * @return array|\string[] method names
+     */
+    public static function getSetters($src)
     {
-        return self::getXMethods('set', $obj);
+        return self::getMethodsByPrefix('set', $src);
     }
 
-    public static function getGetters($obj)
+    /**
+     * Returns names of getters.
+     *
+     * @param object|string $src object or class name
+     * @return array|\string[] method names
+     */
+    public static function getGetters($src)
     {
-        return self::getXMethods('get', $obj);
+        return self::getMethodsByPrefix('get', $src);
     }
 
     /**
@@ -173,30 +205,30 @@ class Manipulator
      *
      * @experimental
      *
-     * @param object|array $obj
+     * @param object|array $src
      * @param string[] $propNames
      * @return array
      */
-    public static function getValues($obj, array $propNames)
+    public static function getValues($src, array $propNames)
     {
         $values = [];
-        $isArray = is_array($obj);
+        $isArray = is_array($src);
         foreach ($propNames as $key) {
             if ($isArray) {
-                if (array_key_exists($key, $obj)) {
-                    $values[$key] = $obj[$key];
+                if (array_key_exists($key, $src)) {
+                    $values[$key] = $src[$key];
                 }
             } else {
-                if (property_exists($obj, $key)) {
-                    $values[$key] = $obj->{$key};
+                if (property_exists($src, $key)) {
+                    $values[$key] = $src->{$key};
                 }
             }
         }
         foreach ($propNames as $key) {
             if (array_key_exists($key, $values)) continue;
             $getter = 'get' . self::snakeToCamelCase($key);
-            if (method_exists($obj, $getter)) {
-                $values[$key] = $obj->{$getter}();
+            if (method_exists($src, $getter)) {
+                $values[$key] = $src->{$getter}();
             }
         }
         return $values;
