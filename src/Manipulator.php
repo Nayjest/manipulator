@@ -151,7 +151,7 @@ class Manipulator
         $res = [];
         $methods = get_class_methods($obj);
         foreach ($methods as $method) {
-            if (strpos($method, $key) === 0 && strlen($method) > 3 and ctype_upper($method{3})) {
+            if (strpos($method, $key) === 0 && strlen($method) > 3 && ctype_upper($method{3})) {
                 $res[] = $method;
             }
         }
