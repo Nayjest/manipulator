@@ -7,15 +7,19 @@ class ConArgs
     public $b;
     public $c;
     protected $d;
+    public $e;
+    public $f;
 
-    public function __construct($a, $b)
+    public function __construct($a, $b = null, $e = null, $f = null)
     {
-        $this->a = "$a!a";
-        $this->b = "$b!b";
+        $this->a = $a;
+        $this->b = $b;
+        $this->e = $e;
+        $this->f = $f;
     }
     public function setD($val)
     {
-        $this->d = "$val!d";
+        $this->d = $val;
     }
 
     /**

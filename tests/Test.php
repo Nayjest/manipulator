@@ -15,17 +15,8 @@ class Test extends PHPUnit_Framework_TestCase
     public function testInstantiateWithoutArguments()
     {
         $class = 'Nayjest\Manipulator\Test\Mock\PersonStruct';
-        $class2 = '\Nayjest\Manipulator\Test\Mock\PersonStruct';
-
         $person = Manipulator::instantiate($class);
         self::assertInstanceOf($class, $person);
-        self::assertInstanceOf($class2, $person);
-
-
-        $person = Manipulator::instantiate($class);
-        self::assertInstanceOf($class2, $person);
-        self::assertInstanceOf($class, $person);
-
         return $person;
     }
 
@@ -42,7 +33,7 @@ class Test extends PHPUnit_Framework_TestCase
         ]);
         self::assertEquals(27, $person->age);
         self::assertEquals('John', $person->name);
-        self::assertEquals(serialize($assigned), serialize(['name','age']));
+        self::assertEquals(serialize($assigned), serialize(['name', 'age']));
         return $person;
     }
 
@@ -57,7 +48,7 @@ class Test extends PHPUnit_Framework_TestCase
             'nonExistentProp' => 'test',
         ]);
         self::assertEmpty($assigned);
-        self::assertFalse(property_exists($person,'nonExistentProp'));
+        self::assertFalse(property_exists($person, 'nonExistentProp'));
         return $person;
     }
 
@@ -96,17 +87,35 @@ class Test extends PHPUnit_Framework_TestCase
         );
         self::assertEquals($email, $person->getEmail());
         self::assertEquals($gender, $person->gender);
-        self::assertFalse(property_exists($person,'someProp'));
+        self::assertFalse(property_exists($person, 'someProp'));
         self::assertCount(2, $assigned);
         return $person;
     }
 
-    public function testConArgs()
+    public function testInstantiateWithArguments()
     {
         $class = 'Nayjest\Manipulator\Test\Mock\ConArgs';
+        $inst = Manipulator::instantiate($class, ['a']);
+        self::assertEquals('a', $inst->a);
+        self::assertEmpty($inst->b);
+        self::assertEmpty($inst->e);
+
         $inst = Manipulator::instantiate($class, ['a', 'b']);
-        self::assertEquals('a!a', $inst->a);
-        self::assertEquals('b!b', $inst->b);
+        self::assertEquals('a', $inst->a);
+        self::assertEquals('b', $inst->b);
+        self::assertEmpty($inst->e);
+
+        $inst = Manipulator::instantiate($class, ['a', 'b', 'e']);
+        self::assertEquals('a', $inst->a);
+        self::assertEquals('b', $inst->b);
+        self::assertEquals('e', $inst->e);
+        self::assertEmpty($inst->f);
+
+        $inst = Manipulator::instantiate($class, ['a', 'b', 'e', 'f']);
+        self::assertEquals('a', $inst->a);
+        self::assertEquals('b', $inst->b);
+        self::assertEquals('e', $inst->e);
+        self::assertEquals('f', $inst->f);
     }
 
     public function testGetSetters()
@@ -123,5 +132,44 @@ class Test extends PHPUnit_Framework_TestCase
         $getters = Manipulator::getGetters($class);
         self::assertContains('getEmail', $getters);
         self::assertCount(1, $getters);
+    }
+
+    public function testGetWriteable()
+    {
+        $class = '\Nayjest\Manipulator\Test\Mock\PersonStruct';
+
+        $fields = Manipulator::getWritable($class, false);
+        self::assertCount(3, $fields);
+        self::assertContains('age', $fields);
+
+        self::assertNotContains('email', $fields);
+        $fields = Manipulator::getWritable($class);
+        self::assertCount(4, $fields);
+        self::assertContains('email', $fields);
+
+        $obj = new PersonStruct();
+        $fields = Manipulator::getWritable($obj, false);
+        self::assertCount(3, $fields);
+        self::assertContains('age', $fields);
+
+        self::assertNotContains('email', $fields);
+        $fields = Manipulator::getWritable($obj);
+        self::assertCount(4, $fields);
+        self::assertContains('email', $fields);
+
+        $fields = Manipulator::getWritable(['a'=>1,'b'=>2]);
+        self::assertCount(2, $fields);
+        self::assertContains('a', $fields);
+        self::assertContains('b', $fields);
+    }
+
+    public function testGetValues()
+    {
+        $src = ['a' => 1,'b' => 2,'c' => 3];
+        $res = Manipulator::getValues($src, ['a', 'b', 'c']);
+        self::assertEquals($src, $res);
+
+        $res = Manipulator::getValues($src, ['a', 'c']);
+        self::assertCount(2, $res);
     }
 }
