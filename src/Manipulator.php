@@ -37,11 +37,9 @@ class Manipulator
                     array_shift($arguments),
                     array_shift($arguments)
                 );
-            default:
-                $reflection = new ReflectionClass($class);
-                return $reflection->newInstanceArgs($arguments);
         }
-
+        $reflection = new ReflectionClass($class);
+        return $reflection->newInstanceArgs($arguments);
     }
 
     /**
