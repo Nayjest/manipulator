@@ -1,6 +1,7 @@
 <?php
 namespace Nayjest\Manipulator;
 
+use Nayjest\StrCaseConverter\Str;
 use ReflectionClass;
 
 /**
@@ -71,7 +72,7 @@ class Manipulator
     {
         $assignedProperties = [];
         foreach ($fields as $key => $value) {
-            $methodName = 'set' . self::snakeToCamelCase($key);
+            $methodName = 'set' . Str::toCamelCase($key);
             if (method_exists($instance, $methodName)) {
                 $instance->$methodName($value);
                 $assignedProperties[] = $key;
@@ -95,27 +96,6 @@ class Manipulator
             $assigned_fields,
             self::assignBySetters($instance, $fields)
         );
-    }
-
-    protected static function snakeToCamelCase($str)
-    {
-        return str_replace(
-            ' ',
-            '',
-            ucwords(str_replace(array('-', '_'), ' ', $str))
-        );
-    }
-
-    protected static function camelToSnakeCase($str)
-    {
-        $str = lcfirst($str);
-        $lowerCase = strtolower($str);
-        $result = '';
-        $length = strlen($str);
-        for ($i = 0; $i < $length; $i++) {
-            $result .= ($str[$i] === $lowerCase[$i] ? '' : '_') . $lowerCase[$i];
-        }
-        return $result;
     }
 
     protected static $writable = [];
@@ -143,7 +123,7 @@ class Manipulator
             if ($useSetters) {
                 $setters = self::getSetters($class);
                 foreach ($setters as $setter) {
-                    self::$writable[$cacheKey][] = self::camelToSnakeCase(substr($setter, 3));
+                    self::$writable[$cacheKey][] = Str::toSnakeCase(substr($setter, 3));
                 }
             }
         }
@@ -226,7 +206,7 @@ class Manipulator
         }
         foreach ($propNames as $key) {
             if (array_key_exists($key, $values)) continue;
-            $getter = 'get' . self::snakeToCamelCase($key);
+            $getter = 'get' . Str::toCamelCase($key);
             if (method_exists($src, $getter)) {
                 $values[$key] = $src->{$getter}();
             }
