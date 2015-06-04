@@ -97,7 +97,7 @@ class Test extends PHPUnit_Framework_TestCase
         self::assertEquals($email, $person->getEmail());
         self::assertEquals($gender, $person->gender);
         self::assertFalse(property_exists($person,'someProp'));
-        self::assertEquals(count($assigned), 2);
+        self::assertCount(2, $assigned);
         return $person;
     }
 
@@ -107,5 +107,21 @@ class Test extends PHPUnit_Framework_TestCase
         $inst = Manipulator::instantiate($class, ['a', 'b']);
         self::assertEquals('a!a', $inst->a);
         self::assertEquals('b!b', $inst->b);
+    }
+
+    public function testGetSetters()
+    {
+        $class = '\Nayjest\Manipulator\Test\Mock\PersonStruct';
+        $setters = Manipulator::getSetters($class);
+        self::assertContains('setEmail', $setters);
+        self::assertCount(1, $setters);
+    }
+
+    public function testGetGetters()
+    {
+        $class = '\Nayjest\Manipulator\Test\Mock\PersonStruct';
+        $getters = Manipulator::getGetters($class);
+        self::assertContains('getEmail', $getters);
+        self::assertCount(1, $getters);
     }
 }
