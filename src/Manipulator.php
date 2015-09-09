@@ -197,6 +197,8 @@ class Manipulator
                     $values[$key] = $src[$key];
                 }
             } else {
+                // @todo: possible bug
+                // property_exists may return private/protected properties
                 if (property_exists($src, $key)) {
                     $values[$key] = $src->{$key};
                 }
@@ -210,5 +212,49 @@ class Manipulator
             }
         }
         return $values;
+    }
+
+    /**
+     * Extracts value.
+     *
+     * If $propName = 'prop_name', this method will try to extract data in following order from:
+     * - $src['prop_name']
+     * - $src->prop_name
+     * - $src->getPropName()
+     * - $src->prop_name()
+     * - $src->isPropName()
+     *
+     * @experimental
+     * @param $src
+     * @param string $propName
+     * @param $default
+     * @return mixed
+     */
+    public static function getValue($src, $propName, $default = null)
+    {
+        if (is_array($src)) {
+            if (array_key_exists($propName, $src)) {
+                return $src[$propName];
+            }
+        } elseif (is_object($src)) {
+
+            if (isset($src->{$propertyName})) {
+                return $src->{$key};
+            }
+
+            $camelPropName = Str::toCamelCase($propertyName);
+            $methods = [
+                'get' . $camelPropName,
+                $propName,
+                $camelPropName,
+                'is' . $camelPropName
+            ];
+            foreach ($methods as $method) {
+                if (method_exists($src, $method)) {
+                    return call_user_func([$src, $method]);
+                }
+            }
+        }
+        return $default;
     }
 }
