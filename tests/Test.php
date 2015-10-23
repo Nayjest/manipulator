@@ -172,4 +172,29 @@ class Test extends PHPUnit_Framework_TestCase
         $res = Manipulator::getValues($src, ['a', 'c']);
         self::assertCount(2, $res);
     }
+
+    public function testGetValue()
+    {
+        $src = ['a' => 1,'b' => 2,'c' => 3, 'someProp' => 4, 'other_prop' => 5];
+
+        self::assertEquals(1, Manipulator::getValue($src, 'a'));
+        self::assertEquals(null, Manipulator::getValue($src, 'd'));
+        self::assertEquals('default', Manipulator::getValue($src, 'd', 'default'));
+
+        self::assertEquals(4, Manipulator::getValue($src, 'someProp'));
+        self::assertEquals(null, Manipulator::getValue($src, 'some_prop'));
+
+        self::assertEquals(null, Manipulator::getValue($src, 'otherProp'));
+        self::assertEquals(5, Manipulator::getValue($src, 'other_prop'));
+        $src = (object)$src;
+        self::assertEquals(5, Manipulator::getValue($src, 'other_prop'));
+        self::assertEquals(null, Manipulator::getValue($src, 'otherProp'));
+
+        $person = new PersonStruct();
+        $person->setEmail('text@example.com');
+        self::assertEquals(
+            'text@example.com',
+            Manipulator::getValue($person, 'email')
+        );
+    }
 }

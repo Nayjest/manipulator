@@ -237,12 +237,11 @@ class Manipulator
                 return $src[$propName];
             }
         } elseif (is_object($src)) {
-
-            if (isset($src->{$propertyName})) {
-                return $src->{$key};
+            if (isset($src->{$propName})) {
+                return $src->{$propName};
             }
 
-            $camelPropName = Str::toCamelCase($propertyName);
+            $camelPropName = Str::toCamelCase($propName);
             $methods = [
                 'get' . $camelPropName,
                 $propName,
