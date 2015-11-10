@@ -125,7 +125,6 @@ function getWritable($src, $useSetters = true)
     return $writable[$cacheKey];
 }
 
-
 /**
  * Returns methods with names started by specified keyword
  * and followed by uppercase character.
