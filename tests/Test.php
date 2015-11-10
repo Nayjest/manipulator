@@ -5,6 +5,7 @@ namespace Nayjest\Manipulator\Test;
 use Nayjest\Manipulator\Manipulator;
 use Nayjest\Manipulator\Test\Mock\PersonStruct;
 use PHPUnit_Framework_TestCase;
+use mp;
 
 class Test extends PHPUnit_Framework_TestCase
 {
@@ -15,9 +16,22 @@ class Test extends PHPUnit_Framework_TestCase
     public function testInstantiateWithoutArguments()
     {
         $class = 'Nayjest\Manipulator\Test\Mock\PersonStruct';
-        $person = Manipulator::instantiate($class);
+        $person = mp\instantiate($class);
         self::assertInstanceOf($class, $person);
         return $person;
+    }
+
+    public function testAssignToArray()
+    {
+        $data = [
+            'a' => 1,
+            'b' => 2,
+            'c' => 3
+        ];
+        mp\assignValues($data, ['a' => 'a', 'b' => 'b']);
+        self::assertEquals('a', $data['a']);
+        self::assertEquals('b', $data['b']);
+        self::assertEquals(3, $data['c']);
     }
 
     /**
@@ -27,7 +41,7 @@ class Test extends PHPUnit_Framework_TestCase
      */
     public function testAssignPublicProperties(PersonStruct $person)
     {
-        $assigned = Manipulator::assignPublicProperties($person, [
+        $assigned = mp\assignPublicProperties($person, [
             'name' => 'John',
             'age' => 27,
         ]);
@@ -44,7 +58,7 @@ class Test extends PHPUnit_Framework_TestCase
      */
     public function testAssignNonExistentProperties(PersonStruct $person)
     {
-        $assigned = Manipulator::assignPublicProperties($person, [
+        $assigned = mp\assignPublicProperties($person, [
             'nonExistentProp' => 'test',
         ]);
         self::assertEmpty($assigned);
@@ -60,7 +74,7 @@ class Test extends PHPUnit_Framework_TestCase
     public function testAssignUsingSetters(PersonStruct $person)
     {
         $email = 'me@example.com';
-        $assigned = Manipulator::assignBySetters(
+        $assigned = mp\assignValuesBySetters(
             $person,
             compact('email')
         );
@@ -81,7 +95,7 @@ class Test extends PHPUnit_Framework_TestCase
         $someProp = 'test';
         $gender = 'm';
 
-        $assigned = Manipulator::assign(
+        $assigned = mp\assignValues(
             $person,
             compact('email', 'someProp', 'gender')
         );
@@ -95,23 +109,23 @@ class Test extends PHPUnit_Framework_TestCase
     public function testInstantiateWithArguments()
     {
         $class = 'Nayjest\Manipulator\Test\Mock\ConArgs';
-        $inst = Manipulator::instantiate($class, ['a']);
+        $inst = mp\instantiate($class, ['a']);
         self::assertEquals('a', $inst->a);
         self::assertEmpty($inst->b);
         self::assertEmpty($inst->e);
 
-        $inst = Manipulator::instantiate($class, ['a', 'b']);
+        $inst = mp\instantiate($class, ['a', 'b']);
         self::assertEquals('a', $inst->a);
         self::assertEquals('b', $inst->b);
         self::assertEmpty($inst->e);
 
-        $inst = Manipulator::instantiate($class, ['a', 'b', 'e']);
+        $inst = mp\instantiate($class, ['a', 'b', 'e']);
         self::assertEquals('a', $inst->a);
         self::assertEquals('b', $inst->b);
         self::assertEquals('e', $inst->e);
         self::assertEmpty($inst->f);
 
-        $inst = Manipulator::instantiate($class, ['a', 'b', 'e', 'f']);
+        $inst = mp\instantiate($class, ['a', 'b', 'e', 'f']);
         self::assertEquals('a', $inst->a);
         self::assertEquals('b', $inst->b);
         self::assertEquals('e', $inst->e);
@@ -121,7 +135,7 @@ class Test extends PHPUnit_Framework_TestCase
     public function testGetSetters()
     {
         $class = '\Nayjest\Manipulator\Test\Mock\PersonStruct';
-        $setters = Manipulator::getSetters($class);
+        $setters = mp\getSetters($class);
         self::assertContains('setEmail', $setters);
         self::assertCount(1, $setters);
     }
@@ -129,35 +143,35 @@ class Test extends PHPUnit_Framework_TestCase
     public function testGetGetters()
     {
         $class = '\Nayjest\Manipulator\Test\Mock\PersonStruct';
-        $getters = Manipulator::getGetters($class);
+        $getters = mp\getGetters($class);
         self::assertContains('getEmail', $getters);
         self::assertCount(1, $getters);
     }
 
-    public function testGetWriteable()
+    public function testGetWritable()
     {
         $class = '\Nayjest\Manipulator\Test\Mock\PersonStruct';
 
-        $fields = Manipulator::getWritable($class, false);
+        $fields = mp\getWritable($class, false);
         self::assertCount(3, $fields);
         self::assertContains('age', $fields);
 
         self::assertNotContains('email', $fields);
-        $fields = Manipulator::getWritable($class);
+        $fields = mp\getWritable($class);
         self::assertCount(4, $fields);
         self::assertContains('email', $fields);
 
         $obj = new PersonStruct();
-        $fields = Manipulator::getWritable($obj, false);
+        $fields = mp\getWritable($obj, false);
         self::assertCount(3, $fields);
         self::assertContains('age', $fields);
 
         self::assertNotContains('email', $fields);
-        $fields = Manipulator::getWritable($obj);
+        $fields = mp\getWritable($obj);
         self::assertCount(4, $fields);
         self::assertContains('email', $fields);
 
-        $fields = Manipulator::getWritable(['a'=>1,'b'=>2]);
+        $fields = mp\getWritable(['a' => 1, 'b' => 2]);
         self::assertCount(2, $fields);
         self::assertContains('a', $fields);
         self::assertContains('b', $fields);
@@ -165,36 +179,77 @@ class Test extends PHPUnit_Framework_TestCase
 
     public function testGetValues()
     {
-        $src = ['a' => 1,'b' => 2,'c' => 3];
-        $res = Manipulator::getValues($src, ['a', 'b', 'c']);
+        $src = ['a' => 1, 'b' => 2, 'c' => 3];
+        $res = mp\getValues($src, ['a', 'b', 'c']);
         self::assertEquals($src, $res);
 
-        $res = Manipulator::getValues($src, ['a', 'c']);
+        $res = mp\getValues($src, ['a', 'c']);
         self::assertCount(2, $res);
+
+        $person = new PersonStruct();
+        $person->setEmail('text@example.com');
+        $person->name = 'John';
+        self::assertEquals(
+            ['email' => 'text@example.com', 'name' => 'John'],
+            mp\getValues($person, ['email', 'name'])
+        );
     }
 
     public function testGetValue()
     {
-        $src = ['a' => 1,'b' => 2,'c' => 3, 'someProp' => 4, 'other_prop' => 5];
+        $src = ['a' => 1, 'b' => 2, 'c' => 3, 'someProp' => 4, 'other_prop' => 5];
 
-        self::assertEquals(1, Manipulator::getValue($src, 'a'));
-        self::assertEquals(null, Manipulator::getValue($src, 'd'));
-        self::assertEquals('default', Manipulator::getValue($src, 'd', 'default'));
+        self::assertEquals(1, mp\getValue($src, 'a'));
+        self::assertEquals(null, mp\getValue($src, 'd'));
+        self::assertEquals('default', mp\getValue($src, 'd', 'default'));
 
-        self::assertEquals(4, Manipulator::getValue($src, 'someProp'));
-        self::assertEquals(null, Manipulator::getValue($src, 'some_prop'));
+        self::assertEquals(4, mp\getValue($src, 'someProp'));
+        self::assertEquals(null, mp\getValue($src, 'some_prop'));
 
-        self::assertEquals(null, Manipulator::getValue($src, 'otherProp'));
-        self::assertEquals(5, Manipulator::getValue($src, 'other_prop'));
+        self::assertEquals(null, mp\getValue($src, 'otherProp'));
+        self::assertEquals(5, mp\getValue($src, 'other_prop'));
         $src = (object)$src;
-        self::assertEquals(5, Manipulator::getValue($src, 'other_prop'));
-        self::assertEquals(null, Manipulator::getValue($src, 'otherProp'));
+        self::assertEquals(5, mp\getValue($src, 'other_prop'));
+        self::assertEquals(null, mp\getValue($src, 'otherProp'));
 
         $person = new PersonStruct();
         $person->setEmail('text@example.com');
         self::assertEquals(
             'text@example.com',
-            Manipulator::getValue($person, 'email')
+            mp\getValue($person, 'email')
         );
+
+        $data = [
+            'a' => [
+                'b' => [
+                    'c' => $person
+                ]
+            ]
+        ];
+        self::assertEquals('text@example.com', mp\getValue($data, 'a.b.c.email'));
+
+        mp\getValueByRef($data, 'a.b')['c'] = 'C';
+        self::assertEquals('C', mp\getValue($data, 'a.b.c'));
+    }
+
+    public function testAssignValue()
+    {
+        $data = [
+            'a' => [
+                'b' => [
+                    'c' => []
+                ]
+            ]
+        ];
+
+        $res = mp\assignValue($data, 'a.b.c', 7);
+        self::assertTrue($res);
+        self::assertEquals(7, mp\getValue($data, 'a.b.c'));
+
+        self::assertFalse(mp\assignValue($data, 'c.d.b', 8));
+
+        self::assertTrue(mp\assignValue($data, 'b', 9));
+        self::assertEquals(9, $data['b']);
+
     }
 }

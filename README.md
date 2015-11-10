@@ -22,7 +22,7 @@ composer require nayjest/manipulator
 
 ## Usage
 
-#### `Manipulator::instantiate($class, array $arguments = [])`
+#### `mp\instantiate(string $class, array $arguments = [])`
 
 Creates class instance using specified constructor arguments.
 
@@ -35,7 +35,7 @@ Method returns instantiated object.
 
 
 
-#### `Manipulator::assignPublicProperties($instance, array $fields)`
+#### `mp\assignPublicProperties(object $instance, array $fields)`
 
 Assigns values from array to existing public properties.
 
@@ -48,7 +48,9 @@ Method returns array containing names of successfully assigned properties.
 * object $instance &mdash; Target object
 * array $fields &mdash; Fields to assign. Keys must be same as target object property names.
 
-#### `Manipulator::assignBySetters($instance, array $fields)`
+
+
+#### `mp\assignValuesBySetters(object $instance, array $fields)`
 
 Assigns values from array to corresponding properties using setters.
 
@@ -64,7 +66,7 @@ Method returns names of successfully assigned properties.
 ##### Example
 
 ```php
-use Nayjest\Manipulator\Manipulator;
+use mp;
 
 class Target
 {
@@ -73,19 +75,59 @@ class Target
 
 $target = new Target;
 
-$unassigned = Manipulator::assignBySetters($target, [
+$unassigned = mp\assignValuesBySetters($target, [
     'some_property' => 1,
     'some_other_property' => 2
 ]);
-# Manipulator::assignBySetters() will call $target->setSomeProperty(1).
+# mp\assignValuesBySetters() will call $target->setSomeProperty(1).
 # Value of 'some_other_property' will be ignored.
 # $unassigned will contain array('some_other_property')
 ```
-#### `Manipulator::assign($instance, array $fields)`
+
+#### `mp\assignValues(&$target, array $fields)`
 
 Assigns values from array to object. 
 
-This method is just a combination of Manipulator::assignPublicProperties() and Manipulator::assignBySetters().
+This method is just a combination of mp\assignPublicProperties() and mp\assignValuesBySetters().
+
+
+
+#### `mp\getWritable($src, $useSetters = true)`
+
+Returns names of writable properties.
+
+##### Arguments
+
+* object|string|array $src &mdash; object or class name or array
+* bool $useSetters &mdash; if true, protected/private properties with corresponding setters will be added to result
+
+#### `mp\getMethodsPrefixedBy(string $keyword, object|string $src)`
+
+
+#### `mp\getSetters(object|string $src)`
+
+
+#### `mp\getGetters(object|string $src)`
+
+
+#### `mp\getValues($src, array $propertyNames)`
+
+
+#### `mp\getValue($src, $propertyName, $default = null, $delimiter = '.')`
+
+Extracts value, supports property paths (prop1.prop2.prop3).
+
+
+#### `mp\&getValueByRef(&$src, $propertyName, $default = null, $delimiter = '.')`
+
+Extracts value by reference, supports property paths (prop1.prop2.prop3).
+
+
+#### `mp\assignValue(&$target, $propertyName, $value, $delimiter = '.')`
+
+Assigns value, supports property paths (prop1.prop2.prop3).
+
+
 
 ## Testing
 
