@@ -142,12 +142,25 @@ The package bundled with phpunit tests.
 
 #### Running Unit Tests
 
-Just execute phpunit from package folder.
+1) Navigate to package folder.
+
+2) Install package dependencies via composer.
 
 ```bash
-phpunit
+composer install
 ```
-Package dependencies must be installed via composer (just run `composer install`).
+
+3) Run phpunit
+
+```bash
+./vendor/bin/phpunit
+```
+
+For windows
+
+```bash
+vendor\bin\phpunit
+```
 
 ## License
 
