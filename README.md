@@ -1,7 +1,8 @@
-Manipulator
+Manipulator (mp)
 =======
 
-Utilities for performing manipulations with classes and objects.
+Small PHP library for manipulating data structures (objects, multidimensional arrays, etc).
+
 
 [![Build Status](https://travis-ci.org/Nayjest/manipulator.svg)](https://travis-ci.org/Nayjest/manipulator)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Nayjest/manipulator/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Nayjest/manipulator/?branch=master)
@@ -22,20 +23,20 @@ composer require nayjest/manipulator
 
 ## Usage
 
-#### `mp\instantiate(string $class, array $arguments = [])`
+##### `mp\instantiate(string $class, array $arguments = [])`
 
 Creates class instance using specified constructor arguments.
 
 Method returns instantiated object.
 
-##### Arguments
+###### Arguments
 
 * string $class &mdash; Target class name
 * array $arguments &mdash; Constructor arguments (optional)
 
 
 
-#### `mp\assignPublicProperties(object $instance, array $fields)`
+##### `mp\assignPublicProperties(object $instance, array $fields)`
 
 Assigns values from array to existing public properties.
 
@@ -43,14 +44,14 @@ Fields that has no corresponding properties in target object are ignored.
 
 Method returns array containing names of successfully assigned properties.
 
-##### Arguments
+###### Arguments
 
 * object $instance &mdash; Target object
 * array $fields &mdash; Fields to assign. Keys must be same as target object property names.
 
 
 
-#### `mp\assignValuesBySetters(object $instance, array $fields)`
+##### `mp\assignValuesBySetters(object $instance, array $fields)`
 
 Assigns values from array to corresponding properties using setters.
 
@@ -58,12 +59,12 @@ Fields that has no corresponding properties in target object are ignored.
 
 Method returns names of successfully assigned properties.
 
-##### Arguments
+###### Arguments
 
 * object $instance &mdash; Target object
 * array $fields &mdash; Fields to assign. Keys must be same as target object property names.
 
-##### Example
+###### Example
 
 ```php
 use mp;
@@ -84,7 +85,7 @@ $unassigned = mp\assignValuesBySetters($target, [
 # $unassigned will contain array('some_other_property')
 ```
 
-#### `mp\assignValues(&$target, array $fields)`
+##### `mp\assignValues(&$target, array $fields)`
 
 Assigns values from array to object. 
 
@@ -92,38 +93,38 @@ This method is just a combination of mp\assignPublicProperties() and mp\assignVa
 
 
 
-#### `mp\getWritable($src, $useSetters = true)`
+##### `mp\getWritable($src, $useSetters = true)`
 
 Returns names of writable properties.
 
-##### Arguments
+###### Arguments
 
 * object|string|array $src &mdash; object or class name or array
 * bool $useSetters &mdash; if true, protected/private properties with corresponding setters will be added to result
 
-#### `mp\getMethodsPrefixedBy(string $keyword, object|string $src)`
+##### `mp\getMethodsPrefixedBy(string $keyword, object|string $src)`
 
 
-#### `mp\getSetters(object|string $src)`
+##### `mp\getSetters(object|string $src)`
 
 
-#### `mp\getGetters(object|string $src)`
+##### `mp\getGetters(object|string $src)`
 
 
-#### `mp\getValues($src, array $propertyNames)`
+##### `mp\getValues($src, array $propertyNames)`
 
 
-#### `mp\getValue($src, $propertyName, $default = null, $delimiter = '.')`
+##### `mp\getValue($src, $propertyName, $default = null, $delimiter = '.')`
 
 Extracts value, supports property paths (prop1.prop2.prop3).
 
 
-#### `mp\&getValueByRef(&$src, $propertyName, $default = null, $delimiter = '.')`
+##### `mp\&getValueByRef(&$src, $propertyName, $default = null, $delimiter = '.')`
 
 Extracts value by reference, supports property paths (prop1.prop2.prop3).
 
 
-#### `mp\assignValue(&$target, $propertyName, $value, $delimiter = '.')`
+##### `mp\assignValue(&$target, $propertyName, $value, $delimiter = '.')`
 
 Assigns value, supports property paths (prop1.prop2.prop3).
 
@@ -131,11 +132,18 @@ Assigns value, supports property paths (prop1.prop2.prop3).
 
 ## Testing
 
-Run following command:
+#### Overview
+
+The package bundled with phpunit tests.
+
+#### Running Unit Tests
+
+Just execute phpunit from package folder.
 
 ```bash
 phpunit
 ```
+Package dependencies must be installed via composer (just run `composer install`).
 
 ## License
 
