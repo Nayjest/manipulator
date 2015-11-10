@@ -11,6 +11,10 @@ Small PHP library for manipulating data structures (objects, multidimensional ar
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/4c4b3aa4-e366-456e-8065-67033d2a8080/big.png)](https://insight.sensiolabs.com/projects/4c4b3aa4-e366-456e-8065-67033d2a8080)
 
+It's like
+[symfony/property-access](http://symfony.com/doc/current/components/property_access/index.html)
+with  additional features, faster (no reflection usage) and without over-engineering (~300 lines of code, few functions).
+
 ## Requirements
 
 * PHP 5.4+
