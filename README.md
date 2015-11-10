@@ -10,6 +10,10 @@ Utilities for performing manipulations with classes and objects.
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/4c4b3aa4-e366-456e-8065-67033d2a8080/big.png)](https://insight.sensiolabs.com/projects/4c4b3aa4-e366-456e-8065-67033d2a8080)
 
+## Requirements
+
+* PHP 5.4+
+
 ## Installation
 
 The recommended way of installing the component is through [Composer](https://getcomposer.org).
