@@ -44,7 +44,7 @@ Method returns instantiated object.
 
 
 
-##### `mp\assignPublicProperties(object $instance, array $fields)`
+##### `mp\setPublicProperties(object $instance, array $fields)`
 
 Assigns values from array to existing public properties.
 
@@ -59,7 +59,7 @@ Method returns array containing names of successfully assigned properties.
 
 
 
-##### `mp\assignValuesBySetters(object $instance, array $fields)`
+##### `mp\setValuesUsingSetters(object $instance, array $fields)`
 
 Assigns values from array to corresponding properties using setters.
 
@@ -84,20 +84,20 @@ class Target
 
 $target = new Target;
 
-$unassigned = mp\assignValuesBySetters($target, [
+mp\setValuesUsingSetters($target, [
     'some_property' => 1,
     'some_other_property' => 2
 ]);
-# mp\assignValuesBySetters() will call $target->setSomeProperty(1).
+# mp\setValuesUsingSetters() will call $target->setSomeProperty(1).
 # Value of 'some_other_property' will be ignored.
 # $unassigned will contain array('some_other_property')
 ```
 
-##### `mp\assignValues(&$target, array $fields)`
+##### `mp\setValues(&$target, array $fields)`
 
-Assigns values from array to object. 
+Assigns values from array to object or another array.
 
-This method is just a combination of mp\assignPublicProperties() and mp\assignValuesBySetters().
+This method is a combination of mp\setPublicProperties(), mp\setValuesUsingSetters() and array_merge if $target is array.
 
 
 
@@ -132,7 +132,7 @@ Extracts value, supports property paths (prop1.prop2.prop3).
 Extracts value by reference, supports property paths (prop1.prop2.prop3).
 
 
-##### `mp\assignValue(&$target, $propertyName, $value, $delimiter = '.')`
+##### `mp\setValue(&$target, $propertyName, $value, $delimiter = '.')`
 
 Assigns value, supports property paths (prop1.prop2.prop3).
 

@@ -28,7 +28,7 @@ class Test extends PHPUnit_Framework_TestCase
             'b' => 2,
             'c' => 3
         ];
-        mp\assignValues($data, ['a' => 'a', 'b' => 'b']);
+        mp\setValues($data, ['a' => 'a', 'b' => 'b']);
         self::assertEquals('a', $data['a']);
         self::assertEquals('b', $data['b']);
         self::assertEquals(3, $data['c']);
@@ -41,7 +41,7 @@ class Test extends PHPUnit_Framework_TestCase
      */
     public function testAssignPublicProperties(PersonStruct $person)
     {
-        $assigned = mp\assignPublicProperties($person, [
+        $assigned = mp\setPublicProperties($person, [
             'name' => 'John',
             'age' => 27,
         ]);
@@ -58,7 +58,7 @@ class Test extends PHPUnit_Framework_TestCase
      */
     public function testAssignNonExistentProperties(PersonStruct $person)
     {
-        $assigned = mp\assignPublicProperties($person, [
+        $assigned = mp\setPublicProperties($person, [
             'nonExistentProp' => 'test',
         ]);
         self::assertEmpty($assigned);
@@ -74,7 +74,7 @@ class Test extends PHPUnit_Framework_TestCase
     public function testAssignUsingSetters(PersonStruct $person)
     {
         $email = 'me@example.com';
-        $assigned = mp\assignValuesBySetters(
+        $assigned = mp\setValuesUsingSetters(
             $person,
             compact('email')
         );
@@ -95,7 +95,7 @@ class Test extends PHPUnit_Framework_TestCase
         $someProp = 'test';
         $gender = 'm';
 
-        $assigned = mp\assignValues(
+        $assigned = mp\setValues(
             $person,
             compact('email', 'someProp', 'gender')
         );
@@ -242,13 +242,13 @@ class Test extends PHPUnit_Framework_TestCase
             ]
         ];
 
-        $res = mp\assignValue($data, 'a.b.c', 7);
+        $res = mp\setValue($data, 'a.b.c', 7);
         self::assertTrue($res);
         self::assertEquals(7, mp\getValue($data, 'a.b.c'));
 
-        self::assertFalse(mp\assignValue($data, 'c.d.b', 8));
+        self::assertFalse(mp\setValue($data, 'c.d.b', 8));
 
-        self::assertTrue(mp\assignValue($data, 'b', 9));
+        self::assertTrue(mp\setValue($data, 'b', 9));
         self::assertEquals(9, $data['b']);
 
     }

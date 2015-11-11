@@ -42,7 +42,7 @@ function instantiate($class, array $arguments = [])
  * @param array $fields
  * @return string[] names of successfully assigned properties
  */
-function assignPublicProperties($instance, array $fields)
+function setPublicProperties($instance, array $fields)
 {
     $existing = get_object_vars($instance);
     $overwrite = array_intersect_key($fields, $existing);
@@ -59,7 +59,7 @@ function assignPublicProperties($instance, array $fields)
  * @param array $fields
  * @return string[] names of successfully assigned properties
  */
-function assignValuesBySetters($instance, array $fields)
+function setValuesUsingSetters($instance, array $fields)
 {
     $assignedProperties = [];
     foreach ($fields as $key => $value) {
@@ -73,20 +73,20 @@ function assignValuesBySetters($instance, array $fields)
 }
 
 /**
- * Assigns values from array to object.
+ * Assigns values from array to object or another array.
  *
  * @param object|array $target
  * @param array $fields
  * @return string[] names of successfully assigned properties
  */
-function assignValues(&$target, array $fields)
+function setValues(&$target, array $fields)
 {
     if (is_array($target)) {
         $target = array_merge($target, $fields);
         return array_keys($fields);
     }
-    $assigned_properties = assignPublicProperties($target, $fields);
-    $assigned_by_setters = assignValuesBySetters(
+    $assigned_properties = setPublicProperties($target, $fields);
+    $assigned_by_setters = setValuesUsingSetters(
         $target,
         array_diff_key($fields, array_flip($assigned_properties))
     );
@@ -293,7 +293,7 @@ function &getValueByRef(&$src, $propertyName, $default = null, $delimiter = '.')
  * @param string|null $delimiter
  * @return bool true if success
  */
-function assignValue(&$target, $propertyName, $value, $delimiter = '.')
+function setValue(&$target, $propertyName, $value, $delimiter = '.')
 {
     if ($delimiter && $pos = strrpos($propertyName, $delimiter)) {
         // head(a.b.c) = a.b
@@ -304,9 +304,9 @@ function assignValue(&$target, $propertyName, $value, $delimiter = '.')
         if (!$container) {
             return false;
         }
-        $res = assignValues($container, [$tail => $value]);
+        $res = setValues($container, [$tail => $value]);
         return count($res) === 1;
     }
-    $res = assignValues($target, [$propertyName => $value]);
+    $res = setValues($target, [$propertyName => $value]);
     return count($res) === 1;
 }
