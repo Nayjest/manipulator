@@ -263,9 +263,17 @@ function &getValueByRef(&$src, $propertyName, $default = null, $delimiter = '.')
         }
     } elseif (is_object($src)) {
         if (isset($src->{$propertyName})) {
-            return $src->{$propertyName};
+            // if it's not magic method, return reference
+            if (property_exists($src, $propertyName)) {
+                return $src->{$propertyName};
+                // otherwise (it's __get()) calling $src->{$propertyName} will generate PHP notice:
+                // indirect modification of overloaded property has no effect.
+                // Therefore we return link to temp variable instead of link to variable itself.
+            } else {
+                $tmp = $src->{$propertyName};
+                return $tmp;
+            }
         }
-
         $camelPropName = Str::toCamelCase($propertyName);
         $methods = [
             'get' . $camelPropName,
