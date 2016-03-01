@@ -85,12 +85,12 @@ function setValues(&$target, array $fields)
         $target = array_merge($target, $fields);
         return array_keys($fields);
     }
-    $assigned_properties = setPublicProperties($target, $fields);
-    $assigned_by_setters = setValuesUsingSetters(
+    $assignedProperties = setPublicProperties($target, $fields);
+    $assignedBySetters = setValuesUsingSetters(
         $target,
-        array_diff_key($fields, array_flip($assigned_properties))
+        array_diff_key($fields, array_flip($assignedProperties))
     );
-    return array_merge($assigned_properties, $assigned_by_setters);
+    return array_merge($assignedProperties, $assignedBySetters);
 }
 
 /**
