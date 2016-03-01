@@ -190,17 +190,16 @@ function getValues($src, array $propertyNames)
 
     if (is_array($src)) {
         return array_intersect_key($src, array_flip($propertyNames));
-    } else {
-        $values = array_intersect_key(get_object_vars($src), array_flip($propertyNames));
-        foreach ($propertyNames as $key) {
-            if (array_key_exists($key, $values)) continue;
-            $getter = 'get' . Str::toCamelCase($key);
-            if (method_exists($src, $getter)) {
-                $values[$key] = $src->{$getter}();
-            }
-        }
-        return $values;
     }
+    $values = array_intersect_key(get_object_vars($src), array_flip($propertyNames));
+    foreach ($propertyNames as $key) {
+        if (array_key_exists($key, $values)) continue;
+        $getter = 'get' . Str::toCamelCase($key);
+        if (method_exists($src, $getter)) {
+            $values[$key] = $src->{$getter}();
+        }
+    }
+    return $values;
 }
 
 /**
