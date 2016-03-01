@@ -55,7 +55,7 @@ function setPublicProperties($instance, array $fields)
 /**
  * Assigns values from array to corresponding properties using setters.
  *
- * @param $instance target object
+ * @param object $instance target object
  * @param array $fields
  * @return string[] names of successfully assigned properties
  */
