@@ -13,7 +13,7 @@
         "nayjest/str-case-converter": "^1"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.*"
+        "phpunit/phpunit": "^4||^5"
     },
     "autoload": {
         "files": ["src/mp.php"]
