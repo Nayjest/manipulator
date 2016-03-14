@@ -21,7 +21,7 @@ class Test extends PHPUnit_Framework_TestCase
         return $person;
     }
 
-    public function testAssignToArray()
+    public function testSetValuesToArray()
     {
         $data = [
             'a' => 1,
@@ -39,15 +39,17 @@ class Test extends PHPUnit_Framework_TestCase
      * @param PersonStruct $person
      * @return PersonStruct
      */
-    public function testAssignPublicProperties(PersonStruct $person)
+    public function testSetPublicProperties(PersonStruct $person)
     {
         $assigned = mp\setPublicProperties($person, [
             'name' => 'John',
             'age' => 27,
+            'newProperty' => 7,
         ]);
         self::assertEquals(27, $person->age);
         self::assertEquals('John', $person->name);
         self::assertEquals(serialize($assigned), serialize(['name', 'age']));
+        self::assertTrue(empty($person->newProperty));
         return $person;
     }
 
@@ -56,7 +58,7 @@ class Test extends PHPUnit_Framework_TestCase
      * @param PersonStruct $person
      * @return PersonStruct
      */
-    public function testAssignNonExistentProperties(PersonStruct $person)
+    public function testSetNonExistentProperties(PersonStruct $person)
     {
         $assigned = mp\setPublicProperties($person, [
             'nonExistentProp' => 'test',
@@ -69,9 +71,24 @@ class Test extends PHPUnit_Framework_TestCase
     /**
      * @depends testInstantiateWithoutArguments
      * @param PersonStruct $person
+     */
+    public function testSetNewProperties(PersonStruct $person)
+    {
+        $assigned = mp\setPublicProperties(
+            $person,
+            ['newProperty' => 8],
+            true
+        );
+        self::assertEquals(8, $person->newProperty);
+        self::assertEquals(serialize($assigned), serialize(['newProperty']));
+    }
+
+    /**
+     * @depends testInstantiateWithoutArguments
+     * @param PersonStruct $person
      * @return PersonStruct
      */
-    public function testAssignUsingSetters(PersonStruct $person)
+    public function testSetValuesUsingSetters(PersonStruct $person)
     {
         $email = 'me@example.com';
         $assigned = mp\setValuesUsingSetters(
@@ -89,7 +106,7 @@ class Test extends PHPUnit_Framework_TestCase
      * @param PersonStruct $person
      * @return PersonStruct
      */
-    public function testAssignMixed(PersonStruct $person)
+    public function testSetValuesMixed(PersonStruct $person)
     {
         $email = 'me2@example.com';
         $someProp = 'test';
@@ -232,7 +249,7 @@ class Test extends PHPUnit_Framework_TestCase
         self::assertEquals('C', mp\getValue($data, 'a.b.c'));
     }
 
-    public function testAssignValue()
+    public function testSetValue()
     {
         $data = [
             'a' => [

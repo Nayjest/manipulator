@@ -5,6 +5,9 @@ namespace mp;
 use Nayjest\StrCaseConverter\Str;
 use ReflectionClass;
 
+define('MP_USE_SETTERS', 1);
+define('MP_CREATE_PROPERTIES', 2);
+
 /**
  * Creates class instance using specified constructor arguments.
  *
@@ -36,16 +39,23 @@ function instantiate($class, array $arguments = [])
 }
 
 /**
- * Assigns values from array to existing public properties.
+ * Assigns values from array to public properties.
+ * By default this function don't creates new properties,
+ * but this behavior can be changed if 'true' will be passed to third argument.
  *
  * @param object $instance
  * @param array $fields
+ * @param bool $createProperties by default 'false', pass 'true' to create new properties.
  * @return string[] names of successfully assigned properties
  */
-function setPublicProperties($instance, array $fields)
+function setPublicProperties($instance, array $fields, $createProperties = false)
 {
-    $existing = get_object_vars($instance);
-    $overwrite = array_intersect_key($fields, $existing);
+    if ($createProperties) {
+        $overwrite = $fields;
+    } else {
+        $existing = get_object_vars($instance);
+        $overwrite = array_intersect_key($fields, $existing);
+    }
     foreach ($overwrite as $key => $value) {
         $instance->{$key} = $value;
     }
@@ -77,19 +87,29 @@ function setValuesUsingSetters($instance, array $fields)
  *
  * @param object|array $target
  * @param array $fields
+ * @pram int $options supported options: MP_USE_SETTERS, MP_CREATE_PROPERTIES
  * @return string[] names of successfully assigned properties
  */
-function setValues(&$target, array $fields)
+function setValues(&$target, array $fields, $options = MP_USE_SETTERS)
 {
     if (is_array($target)) {
         $target = array_merge($target, $fields);
         return array_keys($fields);
     }
-    $assignedProperties = setPublicProperties($target, $fields);
-    $assignedBySetters = setValuesUsingSetters(
+    if ($options & MP_USE_SETTERS) {
+        $assignedBySetters = setValuesUsingSetters(
+            $target,
+            $fields
+        );
+    } else {
+        $assignedBySetters = [];
+    }
+    $assignedProperties = setPublicProperties(
         $target,
-        array_diff_key($fields, array_flip($assignedProperties))
+        array_diff_key($fields, array_flip($assignedBySetters)),
+        $options & MP_CREATE_PROPERTIES
     );
+
     return array_merge($assignedProperties, $assignedBySetters);
 }
 
