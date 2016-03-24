@@ -39,43 +39,55 @@ function instantiate($class, array $arguments = [])
 }
 
 /**
- * Assigns values from array to public properties.
- * By default this function don't creates new properties,
- * but this behavior can be changed if 'true' will be passed to third argument.
+ * Assigns values from array to existing public properties of target object.
  *
- * @param object $instance
- * @param array $fields
- * @param bool $createProperties by default 'false', pass 'true' to create new properties.
+ * By default this function ignores fields having no corresponding properties in target object,
+ * but this behavior can be changed if TRUE will be passed to third argument.
+ *
+ * @param object $targetObject target object
+ * @param array $fields fields to assign, keys must be same as target object property names
+ * @param bool $createProperties (optional, default value: false)
+ *                               allows to create new properties in target object if value is true
  * @return string[] names of successfully assigned properties
  */
-function setPublicProperties($instance, array $fields, $createProperties = false)
+function setPublicProperties($targetObject, array $fields, $createProperties = false)
 {
     if ($createProperties) {
         $overwrite = $fields;
     } else {
-        $existing = get_object_vars($instance);
+        $existing = get_object_vars($targetObject);
         $overwrite = array_intersect_key($fields, $existing);
     }
     foreach ($overwrite as $key => $value) {
-        $instance->{$key} = $value;
+        $targetObject->{$key} = $value;
     }
     return array_keys($overwrite);
 }
 
 /**
- * Assigns values from array to corresponding properties using setters.
+ * Assigns values from array to corresponding properties of target object using setters.
  *
- * @param object $instance target object
- * @param array $fields
+ * This function works similar to mp\setPublicProperties(), but uses setter methods instead of public properties.
+ *
+ * Field names may be in snake or camel case,
+ * it will be converted to camel case and prefixed by 'set'
+ * to check availability of corresponding setter in target object.
+ *
+ * Fields having no corresponding setters in target object will be ignored.
+ *
+ * This function does not work with magic setters created using __set() php method.
+ *
+ * @param object $targetObject target object
+ * @param array $fields fields to assign, keys are used to check availability of corresponding setters in target object
  * @return string[] names of successfully assigned properties
  */
-function setValuesUsingSetters($instance, array $fields)
+function setValuesUsingSetters($targetObject, array $fields)
 {
     $assignedProperties = [];
     foreach ($fields as $key => $value) {
         $methodName = 'set' . Str::toCamelCase($key);
-        if (method_exists($instance, $methodName)) {
-            $instance->$methodName($value);
+        if (method_exists($targetObject, $methodName)) {
+            $targetObject->$methodName($value);
             $assignedProperties[] = $key;
         }
     }
@@ -83,11 +95,18 @@ function setValuesUsingSetters($instance, array $fields)
 }
 
 /**
- * Assigns values from array to object or another array.
+ * Assigns values from $fields array to $target. Target may be object or array.
  *
- * @param object|array $target
- * @param array $fields
- * @pram int $options supported options: MP_USE_SETTERS, MP_CREATE_PROPERTIES
+ * By default `mp\setValues` ignores fields having no corresponding properties or setters in target object
+ * but this behavior can be changed if MP_CREATE_PROPERTIES option is used.
+ *
+ * Assigning values using setters can be disabled by removing MP_USE_SETTERS option (it's enabled by default).
+ *
+ * When target is an array, `mp\setValues` will call array_merge PHP function.
+ *
+ * @param object|array $target target object or array
+ * @param array $fields fields to assign
+ * @pram int $options (optional, default value: MP_USE_SETTERS) supported options: MP_USE_SETTERS, MP_CREATE_PROPERTIES
  * @return string[] names of successfully assigned properties
  */
 function setValues(&$target, array $fields, $options = MP_USE_SETTERS)
@@ -114,24 +133,27 @@ function setValues(&$target, array $fields, $options = MP_USE_SETTERS)
 }
 
 /**
- * Returns names of writable properties.
+ * Returns names of writable properties for objects and classes or existing keys for arrays.
  *
- * For arrays, keys will be returned.
+ * Only public object properties and properties having setters considered writable.
  *
- * If used with $useSetters option, corresponding property names in snake case will returned.
+ * For setters, this function will return property names based on setter names
+ * (setter names are converted to snake case, 'set' prefixes are removed).
  *
- * @param object|string|array $src object or class name or array
- * @param bool $useSetters
- * @return array
+ * Detecting properties by setters can be disabled by specifying second argument as FALSE.
+ *
+ * @param object|string|array $target object or class name or array
+ * @param bool $useSetters (optional, default value: true) if true, properties having setters will be added to results
+ * @return string[] names of writable properties
  */
-function getWritable($src, $useSetters = true)
+function getWritable($target, $useSetters = true)
 {
     static $writable = [];
 
-    if (is_array($src)) {
-        return array_keys($src);
+    if (is_array($target)) {
+        return array_keys($target);
     }
-    $class = is_object($src) ? get_class($src) : $src;
+    $class = is_object($target) ? get_class($target) : $target;
     $cacheKey = $class . ($useSetters ? '+s' : '');
     if (!array_key_exists($cacheKey, $writable)) {
         $writable[$cacheKey] = array_keys(get_class_vars($class));
@@ -146,21 +168,21 @@ function getWritable($src, $useSetters = true)
 }
 
 /**
- * Returns methods with names started by specified keyword
+ * Returns method names from target object/class that starts from specified keyword
  * and followed by uppercase character.
  *
  * Examples:
- *     - self::getMethodsPrefixedBy('get', $obj)
+ *     - mp\getMethodsPrefixedBy('get', $obj)
  *       will return methods that looks like getters.
  *
- * @param string $keyword prefix
- * @param object|string $src object or class name
+ * @param string $keyword method name prefix
+ * @param object|string $target object or class name
  * @return array|string[] method names
  */
-function getMethodsPrefixedBy($keyword, $src)
+function getMethodsPrefixedBy($keyword, $target)
 {
     $res = [];
-    $methods = get_class_methods($src);
+    $methods = get_class_methods($target);
     $keyLength = strlen($keyword);
     foreach ($methods as $method) {
         if (
@@ -175,29 +197,32 @@ function getMethodsPrefixedBy($keyword, $src)
 }
 
 /**
- * Returns names of setters.
+ * Returns method names from target object/class that looks like setters.
  *
- * @param object|string $src object or class name
- * @return array|string[] method names
+ * @param object|string $target object or class name
+ * @return string[] method names
  */
-function getSetters($src)
+function getSetters($target)
 {
-    return getMethodsPrefixedBy('set', $src);
+    return getMethodsPrefixedBy('set', $target);
 }
 
 /**
- * Returns names of getters.
+ * Returns method names from target object/class that looks like getters.
  *
- * @param object|string $src object or class name
+ * @param object|string $target object or class name
  * @return array|string[] method names
  */
-function getGetters($src)
+function getGetters($target)
 {
-    return getMethodsPrefixedBy('get', $src);
+    return getMethodsPrefixedBy('get', $target);
 }
 
 /**
  * Returns values of properties specified in $propertyNames argument.
+ *
+ * This function supports getters, i. e.
+ * value returned by getSomeValue() method of target object can be requested as 'some_value' property.
  *
  * @experimental
  *
@@ -223,7 +248,9 @@ function getValues($src, array $propertyNames)
 }
 
 /**
- * Extracts value, supports property paths (prop1.prop2.prop3).
+ * Extracts value specified by property / field name from object or array.
+ *
+ * This function supports property paths (prop1.prop2.prop3) and getters.
  *
  * If $propertyName = 'prop_name', this method will try to extract data in following order from:
  * - $src['prop_name']
@@ -235,8 +262,8 @@ function getValues($src, array $propertyNames)
  * @experimental
  * @param array|object $src
  * @param string $propertyName
- * @param mixed $default
- * @param string|null $delimiter
+ * @param mixed $default default value
+ * @param string|null $delimiter (optional, default value: '.') used to specify property paths
  * @return mixed
  */
 function getValue($src, $propertyName, $default = null, $delimiter = '.')
@@ -245,14 +272,9 @@ function getValue($src, $propertyName, $default = null, $delimiter = '.')
 }
 
 /**
- * Extracts value by reference, supports property paths (prop1.prop2.prop3).
+ * Extracts value specified by property / field / method name from object or array by reference if possible.
  *
- * If $propertyName = 'prop_name', this method will try to extract data in following order from:
- * - $src['prop_name']
- * - $src->prop_name
- * - $src->getPropName()
- * - $src->prop_name()
- * - $src->isPropName()
+ * This function acts like `mp\getValue` with only difference that value will be returned by reference if possible.
  *
  * @experimental
  * @param array|object $src
@@ -318,7 +340,7 @@ function &getValueByRef(&$src, $propertyName, $default = null, $delimiter = '.')
  * @param string $propertyName
  * @param mixed $value
  * @param string|null $delimiter
- * @return bool true if success
+ * @return bool returns TRUE if value was successfully assigned, FALSE otherwise
  */
 function setValue(&$target, $propertyName, $value, $delimiter = '.')
 {
