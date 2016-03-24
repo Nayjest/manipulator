@@ -30,7 +30,7 @@ composer require nayjest/manipulator
 
 ## Usage
 
-### `mp\instantiate`
+### `Function mp\instantiate`
 
 Creates class instance using specified constructor arguments.
 
@@ -49,7 +49,7 @@ Function returns instantiated object
     $user = \mp\instantiate(MyApp\User::class, [$firstArgument, $secondArgument]);
 ```
 
-### `mp\setPublicProperties`
+### `Function mp\setPublicProperties`
 
 Assigns values from array to existing public properties of target object.
 
@@ -66,7 +66,7 @@ By default this function ignores fields having no corresponding properties in ta
 Function returns array containing names of successfully assigned properties.
 
 
-### `mp\setValuesUsingSetters`
+### `Function mp\setValuesUsingSetters`
 
 Assigns values from array to corresponding properties of target object using setters.
 
@@ -119,7 +119,7 @@ echo $target->getSomeProperty(); // 1
 var_dump($result); // array(0 => 'some_property')
 ```
 
-### `mp\setValues`
+### `Function mp\setValues`
 
 Assigns values from $fields array to $target. Target may be object or array.
 
@@ -180,7 +180,7 @@ Results:
 4 | 0 |  property2
 
 
-### `mp\getWritable`
+### `Function mp\getWritable`
 
 Returns names of writable properties for objects and classes or existing keys for arrays.
 
@@ -200,7 +200,7 @@ Detecting properties by setters can be disabled by specifying second argument as
 
 Array containing names of writable properties.
 
-### `mp\getMethodsPrefixedBy`
+### `Function mp\getMethodsPrefixedBy`
 
 Returns method names from target object/class that starts from specified keyword
 and followed by uppercase character.
@@ -227,7 +227,7 @@ $classMethodNames = \mp\getMethodsPrefixedBy('get', 'MyClass');  // will return 
 // $classMethodNames will contain ['getProperty1', 'getProperty2']
 ```
 
-### `mp\getSetters`
+### `Function mp\getSetters`
 
 Returns method names from target object/class that looks like setters.
 
@@ -240,7 +240,7 @@ Returns method names from target object/class that looks like setters.
 Array containing method names.
 
 
-### `mp\getGetters`
+### `Function mp\getGetters`
 
 Returns method names from target object/class that looks like setters.
 
@@ -252,7 +252,7 @@ Returns method names from target object/class that looks like setters.
 
 Array containing method names.
 
-##### `mp\getValues`
+##### `Function mp\getValues`
 
 Returns values of object properties or array elements specified in $propertyNames argument.
 
@@ -267,7 +267,7 @@ This function supports getters, i. e. value returned by getSomeValue() method of
 Array containing required values.
 
 
-### `mp\getValue`
+### `Function mp\getValue`
 
 Extracts value specified by property / field / method name from object or array.
 This function supports property paths (prop1.prop2.prop3) and getters.
@@ -287,12 +287,12 @@ This function supports property paths (prop1.prop2.prop3) and getters.
  * mixed $default &mdash; (optional, default value: null) default value
  * string|null $delimiter &mdash; (optional, default value: '.') used to specify property paths
 
-### `mp\getValueByRef`
+### `Function mp\getValueByRef`
 
 Extracts value specified by property / field / method name from object or array by reference if possible.
 This function acts like `mp\getValue` with only difference that value will be returned by reference if possible.
 
-### `mp\setValue`
+### `Function mp\setValue`
 
 Assigns value, supports property paths (prop1.prop2.prop3).
 
