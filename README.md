@@ -287,7 +287,7 @@ This function supports property paths (prop1.prop2.prop3) and getters.
  * mixed $default &mdash; (optional, default value: null) default value
  * string|null $delimiter &mdash; (optional, default value: '.') used to specify property paths
 
-### `mp\getValueByRef
+### `mp\getValueByRef`
 
 Extracts value specified by property / field / method name from object or array by reference if possible.
 This function acts like `mp\getValue` with only difference that value will be returned by reference if possible.
