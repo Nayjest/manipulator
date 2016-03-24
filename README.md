@@ -123,7 +123,7 @@ var_dump($result); // array(0 => 'some_property')
 
 Assigns values from $fields array to $target. Target may be object or array.
 
-By default `mp\setValues` ignores fields having no corresponding properties or setters in target object but this behavior can be changed if TMP_CREATE_PROPERTIES option is used.
+By default `mp\setValues` ignores fields having no corresponding properties or setters in target object but this behavior can be changed if MP_CREATE_PROPERTIES option is used.
 
 Assigning values using setters can be disabled by removing MP_USE_SETTERS option (it's enabled by default).
 
