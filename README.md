@@ -5,7 +5,6 @@ Small PHP library for manipulating data structures (objects, multidimensional ar
 
 
 [![Build Status](https://travis-ci.org/Nayjest/manipulator.svg)](https://travis-ci.org/Nayjest/manipulator)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Nayjest/manipulator/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Nayjest/manipulator/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/Nayjest/manipulator/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Nayjest/manipulator/?branch=master)
 [![Latest Stable Version](https://img.shields.io/packagist/v/nayjest/manipulator.svg)](https://packagist.org/packages/nayjest/manipulator)
 
@@ -31,140 +30,296 @@ composer require nayjest/manipulator
 
 ## Usage
 
-##### `mp\instantiate(string $class, array $arguments = [])`
+### `mp\instantiate`
 
 Creates class instance using specified constructor arguments.
 
-Method returns instantiated object.
-
-###### Arguments
+##### Arguments
 
 * string $class &mdash; Target class name
 * array $arguments &mdash; Constructor arguments (optional)
 
+##### Returned Value
+
+Function returns instantiated object
+
+##### Example
+
+```php
+    $user = \mp\instantiate(MyApp\User::class, [$firstArgument, $secondArgument]);
+```
+
+### `mp\setPublicProperties`
+
+Assigns values from array to existing public properties of target object.
+
+By default this function ignores fields having no corresponding properties in target object, but this behavior can be changed if TRUE will be passed to third argument.
+
+##### Arguments
+
+* object $targetObject &mdash; target object
+* array $fields &mdash; fields to assign, keys must be same as target object property names
+* bool $createProperties &mdash;  (optional, default value: false) allows to create new properties in target object if value is TRUE
+
+##### Returned Value
+
+Function returns array containing names of successfully assigned properties.
 
 
-##### `mp\setPublicProperties(object $instance, array $fields)`
+### `mp\setValuesUsingSetters`
 
-Assigns values from array to existing public properties.
+Assigns values from array to corresponding properties of target object using setters.
 
-Fields that has no corresponding properties in target object are ignored.
+This function works similar to `mp\setPublicProperties()`, but uses setter methods instead of public properties.
 
-Method returns array containing names of successfully assigned properties.
+Field names may be in snake or camel case, it will be converted to camel case and prefixed by 'set' to check availability of corresponding setter in target object.
 
-###### Arguments
+Fields having no corresponding setters in target object will be ignored.
 
-* object $instance &mdash; Target object
-* array $fields &mdash; Fields to assign. Keys must be same as target object property names.
+This function does not work with magic setters created using __set() php method.
 
+##### Arguments
 
+* object $instance &mdash; target object
+* array $fields &mdash; fields to assign, keys are used to check availability of corresponding setters in target object
 
-##### `mp\setValuesUsingSetters(object $instance, array $fields)`
+##### Returned Value
 
-Assigns values from array to corresponding properties using setters.
+Function returns array containing names of successfully assigned properties.
 
-Fields that has no corresponding properties in target object are ignored.
-
-Method returns names of successfully assigned properties.
-
-###### Arguments
-
-* object $instance &mdash; Target object
-* array $fields &mdash; Fields to assign. Keys must be same as target object property names.
-
-###### Example
+##### Example
 
 ```php
 use mp;
 
 class Target
 {
-     public function setSomeProperty($value);
+     private $somePropery;
+     public function setSomeProperty($value)
+     {
+          $this->someProperty = $value;
+     }
+     
+     public function getSomeProperty()
+     {
+          return $this->someProperty;
+     }
 }
 
 $target = new Target;
 
-mp\setValuesUsingSetters($target, [
-    'some_property' => 1,
+$result = mp\setValuesUsingSetters($target, [
+    'some_property' => 1, // 'someProperty' => 1 will also work
     'some_other_property' => 2
 ]);
-# mp\setValuesUsingSetters() will call $target->setSomeProperty(1).
-# Value of 'some_other_property' will be ignored.
-# $unassigned will contain array('some_other_property')
+# $target->setSomeProperty(1) will be called.
+# Value of 'some_other_property' will be ignored since $target has no 'setSomeOtherProperty' setter.
+
+echo $target->getSomeProperty(); // 1
+var_dump($result); // array(0 => 'some_property')
 ```
 
-##### `mp\setValues(&$target, array $fields)`
+### `mp\setValues`
 
-Assigns values from array to object or another array.
+Assigns values from $fields array to $target. Target may be object or array.
 
-This method is a combination of mp\setPublicProperties(), mp\setValuesUsingSetters() and array_merge if $target is array.
+By default `mp\setValues` ignores fields having no corresponding properties or setters in target object but this behavior can be changed if TMP_CREATE_PROPERTIES option is used.
+
+Assigning values using setters can be disabled by removing MP_USE_SETTERS option (it's enabled by default).
+
+When target is an array, `mp\setValues` will call array_merge PHP function.
+
+##### Arguments
+
+* object|array &$target &mdash; target object or array
+* array $fields &mdash; fields to assign
+* int $options (optional, default value: MP_USE_SETTERS) supported options: MP_USE_SETTERS, MP_CREATE_PROPERTIES
+
+##### Returned Value
+
+Function returns array containing names of successfully assigned properties.
+
+##### Example
+
+```php
+use mp;
+
+class Target
+{
+     private $property1;
+     public $property2;
+     public function setProperty1($value)
+     {
+          $this->property1 = $value;
+     }
+}
+
+$target1 = new Target;
+$target2 = new Target;
+$target3 = new Target;
+$target4 = new Target;
+
+$fieldsToSet = [
+    'property1' => 1,
+    'property2' => 2,
+    'property3' => 3,
+];
+$result1 = mp\setValues($target1, $fieldsToSet); // MP_USE_SETTERS by default
+$result2 = mp\setValues($target1, $fieldsToSet, MP_USE_SETTERS | MP_CREATE_PROPERTIES);
+$result3 = mp\setValues($target1, $fieldsToSet, MP_CREATE_PROPERTIES);
+$result4 = mp\setValues($target1, $fieldsToSet, 0);
+```
+
+Results:
+
+\# | Options | Assigned properties 
+--- | --- | ---
+1 | not specified (MP_USE_SETTERS by default) | property1, property2
+2 | MP_USE_SETTERS \| MP_CREATE_PROPERTIES | property1, property2, property3 (created)
+3 | MP_CREATE_PROPERTIES \ |  property2, property3 (created)
+4 | 0 |  property2
 
 
+### `mp\getWritable`
 
-##### `mp\getWritable($src, $useSetters = true)`
+Returns names of writable properties for objects and classes or existing keys for arrays.
 
-Returns names of writable properties.
+Only public object properties and properties having setters considered writable.
 
-###### Arguments
+For setters, this function will return property names based on setter names
+(setter names are converted to snake case, 'set' prefixes are removed).
 
-* object|string|array $src &mdash; object or class name or array
-* bool $useSetters &mdash; if true, protected/private properties with corresponding setters will be added to result
+Detecting properties by setters can be disabled by specifying second argument as FALSE.
 
-##### `mp\getMethodsPrefixedBy(string $keyword, object|string $src)`
+##### Arguments
+
+* object|string|array $target &mdash; object or class name or array
+* bool $useSetters &mdash; (optional, default value: true) if true, properties having setters will be added to results
+
+##### Returned Value
+
+Array containing names of writable properties.
+
+### `mp\getMethodsPrefixedBy`
+
+Returns method names from target object/class that starts from specified keyword
+and followed by uppercase character.
+
+##### Arguments
+
+* string $keyword &mdash; method name prefix
+* object|string $target &mdash; object or class name
+
+##### Returned Value
+
+Array containing method names.
+
+##### Example
+
+```php
+class MyClass {
+    public function getProperty1(){};
+    public function getProperty2(){};
+}
+
+$objectMethodNames = \mp\getMethodsPrefixedBy('get', $obj);  // will return methods of $obj that looks like getters
+$classMethodNames = \mp\getMethodsPrefixedBy('get', 'MyClass');  // will return methods of 'MyClass' class that looks like getters.
+// $classMethodNames will contain ['getProperty1', 'getProperty2']
+```
+
+### `mp\getSetters`
+
+Returns method names from target object/class that looks like setters.
+
+##### Arguments
+
+* object|string $target &mdash; object or class name
+
+##### Returned Value
+
+Array containing method names.
 
 
-##### `mp\getSetters(object|string $src)`
+### `mp\getGetters`
+
+Returns method names from target object/class that looks like setters.
+
+##### Arguments
+
+* object|string $target &mdash; object or class name
+
+##### Returned Value
+
+Array containing method names.
+
+##### `mp\getValues`
+
+Returns values of object properties or array elements specified in $propertyNames argument.
+
+This function supports getters, i. e. value returned by getSomeValue() method of target object can be requested as 'some_value' property.
+
+##### Arguments
+ * object|array $src
+ * string[] $propertyNames
+
+##### Returned Value
+
+Array containing required values.
 
 
-##### `mp\getGetters(object|string $src)`
+### `mp\getValue`
 
+Extracts value specified by property / field / method name from object or array.
+This function supports property paths (prop1.prop2.prop3) and getters.
 
-##### `mp\getValues($src, array $propertyNames)`
+ * For $propertyName = 'prop_name', this function will try to extract data in following order from:
+ 
+ - `$src['prop_name']`
+ - `$src->prop_name`
+ - `$src->getPropName()`
+ - `$src->prop_name()`
+ - `$src->isPropName()`
 
+##### Arguments
 
-##### `mp\getValue($src, $propertyName, $default = null, $delimiter = '.')`
+ * array|object $src
+ * string $propertyName
+ * mixed $default &mdash; (optional, default value: null) default value
+ * string|null $delimiter &mdash; (optional, default value: '.') used to specify property paths
 
-Extracts value, supports property paths (prop1.prop2.prop3).
+### `mp\getValueByRef
 
+Extracts value specified by property / field / method name from object or array by reference if possible.
+This function acts like `mp\getValue` with only difference that value will be returned by reference if possible.
 
-##### `mp\&getValueByRef(&$src, $propertyName, $default = null, $delimiter = '.')`
-
-Extracts value by reference, supports property paths (prop1.prop2.prop3).
-
-
-##### `mp\setValue(&$target, $propertyName, $value, $delimiter = '.')`
+### `mp\setValue`
 
 Assigns value, supports property paths (prop1.prop2.prop3).
 
+##### Arguments
 
+ * array|object &$target
+ * string $propertyName
+ * mixed $value
+ * string|null $delimiter &mdash; (optional, default value: '.') used to specify property paths
+ 
+##### Returned Value
+
+This function returns TRUE if value was successfully assigned, FALSE otherwise
 
 ## Testing
 
-#### Overview
+This package bundled with PhpUnit tests.
 
-The package bundled with phpunit tests.
-
-#### Running Unit Tests
-
-1) Navigate to package folder.
-
-2) Install package dependencies via composer.
+Command for running tests:
 
 ```bash
-composer install
+composer test
 ```
 
-3) Run phpunit
+## Contributing
 
-```bash
-./vendor/bin/phpunit
-```
-
-For windows
-
-```bash
-vendor\bin\phpunit
-```
+Please see [Contributing Guidelines](contributing.md) and [Code of Conduct](code_of_conduct.md) for details.
 
 ## License
 
