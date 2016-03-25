@@ -16,7 +16,7 @@ with  more features, faster (no reflection usage) and without over-engineering (
 
 ## Requirements
 
-* PHP 5.4+
+* PHP 5.4+ (hhvm & php7 are supported)
 
 ## Installation
 
