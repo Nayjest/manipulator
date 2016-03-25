@@ -1,7 +1,7 @@
 Manipulator (mp)
 =======
 
-Small PHP library for manipulating data structures (objects, multidimensional arrays, etc).
+Small library for manipulating PHP objects.
 
 
 [![Build Status](https://travis-ci.org/Nayjest/manipulator.svg)](https://travis-ci.org/Nayjest/manipulator)
