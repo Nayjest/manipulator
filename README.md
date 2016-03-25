@@ -12,7 +12,7 @@ Small PHP library for manipulating data structures (objects, multidimensional ar
 
 It's like
 [symfony/property-access](http://symfony.com/doc/current/components/property_access/index.html)
-with  additional features, faster (no reflection usage) and without over-engineering (~300 lines of code, few functions).
+with  more features, faster (no reflection usage) and without over-engineering (~300 lines of code, few functions).
 
 ## Requirements
 
