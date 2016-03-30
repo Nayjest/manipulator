@@ -252,7 +252,7 @@ Returns method names from target object/class that looks like setters.
 
 Array containing method names.
 
-##### `Function mp\getValues`
+### `Function mp\getValues`
 
 Returns values of object properties or array elements specified in $propertyNames argument.
 
