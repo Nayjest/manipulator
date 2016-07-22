@@ -4,7 +4,7 @@ Manipulator (mp)
 Small library for manipulating PHP objects.
 
 
-[![Build Status](https://travis-ci.org/Nayjest/manipulator.svg)](https://travis-ci.org/Nayjest/manipulator)
+[![Build Status](https://travis-ci.org/Nayjest/Builder.svg?branch=master)](https://travis-ci.org/Nayjest/Builder)
 [![Code Coverage](https://scrutinizer-ci.com/g/Nayjest/manipulator/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Nayjest/manipulator/?branch=master)
 [![Latest Stable Version](https://img.shields.io/packagist/v/nayjest/manipulator.svg)](https://packagist.org/packages/nayjest/manipulator)
 
