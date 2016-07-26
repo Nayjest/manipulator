@@ -19,7 +19,9 @@
         "test": "php vendor/phpunit/phpunit/phpunit"
     },
     "autoload": {
-        "files": ["src/mp.php"]
+        "psr-4": {
+            "Nayjest\\Manipulator\\": "src"
+        }
     },
     "autoload-dev": {
         "psr-4": {
