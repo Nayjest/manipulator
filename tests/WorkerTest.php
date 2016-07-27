@@ -5,6 +5,7 @@ namespace Nayjest\Manipulator\Test;
 use Nayjest\Manipulator\Manipulator;
 use Nayjest\Manipulator\Test\Mock\ConstructedWithOneArg;
 use Nayjest\Manipulator\Test\Mock\ConstructedWithoutArgs;
+use Nayjest\Manipulator\Test\Mock\PropertiesExample;
 use Nayjest\Manipulator\Worker;
 use PHPUnit_Framework_TestCase;
 
@@ -56,24 +57,33 @@ class WorkerTest extends PHPUnit_Framework_TestCase
 
     public function testGetRecursive()
     {
-        $data = [
-            'a' => [
-                'b' => 'a[b]',//no
-                'b.c' => 'a[b.c]',//no
-                'b.c2' => 'a[b.c2]'//yes
-            ],
-            'a.b' => 'a.b',//yes
-            'a.b.c' => 'a.b.c'//yes
-        ];
-        self::assertEquals('a.b', $this->worker->get($data, 'a.b'));
-        self::assertEquals('a.b.c', $this->worker->get($data, 'a.b.c'));
-        self::assertEquals('a[b.c2]', $this->worker->get($data, 'a.b.c2'));
-        self::assertEquals('default', $this->worker->get($data, 'a.b.c.d', 'default'));
+        self::assertEquals('ok', $this->worker->get(['a.b' => 'ok'], 'a.b'));
+        self::assertEquals('ok', $this->worker->get(['a' => ['b'=>'ok']], 'a.b'));
+        self::assertEquals('ok', $this->worker->get(['a.b' => ['c'=>'ok']], 'a.b.c'));
+        self::assertEquals('ok', $this->worker->get(['a.b.c' => ['d'=>['e.f'=>'ok']]], 'a.b.c.d.e.f'));
 
-        $res = $this->worker->getMany($data, ['a.b', 'a.b.c', 'a.b.c2', 'a.b.c.d'], 'default');
-        self::assertTrue($res['a.b'] === 'a.b');
-        self::assertTrue($res['a.b.c'] === 'a.b.c');
-        self::assertTrue($res['a.b.c2'] === 'a[b.c2]');
-        self::assertTrue($res['a.b.c.d'] === 'default');
+        $obj1 = new PropertiesExample();
+        $obj2 = new PropertiesExample();
+        $obj3 = new PropertiesExample();
+        $obj1->setProperty($obj2);
+        $obj2->public_property_snake_case = ['a.b' => $obj3];
+        $obj3->publicProperty = ['c.d' => 'ok'];
+        self::assertEquals('ok', $this->worker->get($obj1, 'property.public_property_snake_case.a.b.publicProperty.c.d'));
+    }
+
+    public function testSetValueToObject()
+    {
+        $obj = new PropertiesExample();
+        $this->worker->set($obj, 'property', 1);
+        self::assertEquals(1, $obj->getProperty());
+        $this->worker->set($obj, 'publicProperty', 2);
+        self::assertEquals(2, $obj->publicProperty);
+        $this->worker->set($obj, 'public_property_snake_case', 3);
+        self::assertEquals(3, $obj->public_property_snake_case);
+        $this->worker->set($obj, 'magic', 4);
+        self::assertEquals(4, $obj->magic);
+        $this->worker->set($obj, 'magic_no_isset', 5);
+        self::assertEquals(5, $obj->magic_no_isset);
+
     }
 }

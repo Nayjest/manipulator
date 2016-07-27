@@ -11,5 +11,5 @@ namespace Nayjest\Manipulator\DataExtractor;
 interface DataExtractorInterface
 {
     public function isApplicable($source, $targetName);
-    public function &extract($source, $targetName, $default);
+    public function extract($source, $targetName, $default);
 }

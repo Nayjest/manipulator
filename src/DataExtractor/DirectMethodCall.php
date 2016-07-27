@@ -15,7 +15,7 @@ class DirectMethodCall implements DataExtractorInterface
         return method_exists($source, $targetName);
     }
 
-    public function &extract($source, $targetName, $default)
+    public function extract($source, $targetName, $default)
     {
         return call_user_func([$source, $targetName]);
     }

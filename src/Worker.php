@@ -11,6 +11,7 @@ use Nayjest\Manipulator\DataExtractor\ObjectPropertyDataExtractor;
 use Nayjest\Manipulator\DataExtractor\RecursiveDataExtractor;
 use Nayjest\Manipulator\DataInjector\ArrayDataInjector;
 use Nayjest\Manipulator\DataInjector\DataInjectorInterface;
+use Nayjest\Manipulator\DataInjector\MagicDataInjector;
 use Nayjest\Manipulator\DataInjector\ObjectPropertyDataInjector;
 use Nayjest\Manipulator\DataInjector\SetterDataInjector;
 use ReflectionClass;
@@ -40,7 +41,7 @@ class Worker
         );
     }
 
-    function &get(&$source, $name, $default = null)
+    function get($source, $name, $default = null)
     {
         if ($source === null) { // optimisation to avoid useless operations
             return $default;
@@ -167,6 +168,7 @@ class Worker
             'array' => new ArrayDataInjector(),
             'property' => new ObjectPropertyDataInjector(false),
             'setter' => new SetterDataInjector(),
+            'magic' => new MagicDataInjector(),
         ];
     }
 }

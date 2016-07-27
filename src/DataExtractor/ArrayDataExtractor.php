@@ -9,7 +9,7 @@ class ArrayDataExtractor
         return is_array($source) && array_key_exists($targetName, $source);
     }
 
-    public function &extract($source, $targetName, $default)
+    public function extract($source, $targetName, $default)
     {
         return $source[$targetName];
     }

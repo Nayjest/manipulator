@@ -25,23 +25,31 @@ class RecursiveDataExtractor implements DataExtractorInterface
         return $this->enabled && $this->position = strpos($targetName, $this->delimiter);
     }
 
-    public function &extract($source, $targetName, $default = null)
+    public function extract($source, $targetName, $default = null)
     {
-        // head(a.b.c) = a
-        // tail(a.b.c) = b.c
-        $head = substr($targetName, 0, $this->position);
-        $tail = substr($targetName, $this->position + 1);
+//      head(a.b.c) = a
+//      tail(a.b.c) = b.c
+        $tail = $targetName;
+        $head = null;
+        $nextSource = null;
         $this->enabled = false;
-        try {
-            $nextSource = $this->manipulator->get($source, $head, null);
-        } catch (Exception $e) {
-            $this->enabled = true;
-            throw $e;
-        }
+        $position = $this->position;
+        do {
+            $pathElement = substr($tail, 0, $position);
+            $head = $head ? $head . $this->delimiter . $pathElement : $pathElement;
+            $tail = substr($tail, $position + 1);
+            try {
+                $nextSource = $this->manipulator->get($source, $head, null);
+            } catch (Exception $e) {
+                $this->enabled = true;
+                throw $e;
+            }
+        } while ($nextSource === null && ($position = strpos($tail, $this->delimiter)));
         $this->enabled = true;
         if ($nextSource === null) {
             return $default;
         }
-        return $this->manipulator->get($nextSource, $tail, $default);
+        $value = $this->manipulator->get($nextSource, $tail, $default);
+        return $value;
     }
 }

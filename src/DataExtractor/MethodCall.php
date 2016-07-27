@@ -29,7 +29,7 @@ class MethodCall implements DataExtractorInterface
             return false;
         }
         $className = get_class($source);
-        if (!array_key_exists($className, $this->cache)) {
+        if (array_key_exists($className, $this->cache)) {
             return $this->cache[$className] !== false;
         }
         $nameInCamelCase = null;
@@ -66,7 +66,7 @@ class MethodCall implements DataExtractorInterface
         return false;
     }
 
-    public function &extract($source, $targetName, $default)
+    public function extract($source, $targetName, $default)
     {
         return call_user_func([$source, $this->cache[get_class($source)]]);
     }
