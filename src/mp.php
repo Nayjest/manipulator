@@ -285,6 +285,22 @@ function getValue($src, $propertyName, $default = null, $delimiter = '.')
  */
 function &getValueByRef(&$src, $propertyName, $default = null, $delimiter = '.')
 {
+    if (is_array($src) && array_key_exists($propertyName, $src)) {        
+        return $src[$propertyName];
+    }
+    $isObject = is_object($src);
+    if ($isObject && isset($src->{$propertyName})) {        
+        // if it's not magic method, return reference
+        if (property_exists($src, $propertyName)) {
+            return $src->{$propertyName};
+            // otherwise (it's __get()) calling $src->{$propertyName} will generate PHP notice:
+            // indirect modification of overloaded property has no effect.
+            // Therefore we return link to temp variable instead of link to variable itself.
+        } else {
+            $tmp = $src->{$propertyName};
+            return $tmp;
+        }
+    }    
     if ($delimiter && $pos = strpos($propertyName, $delimiter)) {
         // head(a.b.c) = a
         // tail(a.b.c) = b.c
@@ -297,24 +313,7 @@ function &getValueByRef(&$src, $propertyName, $default = null, $delimiter = '.')
             $delimiter
         );
     }
-
-    if (is_array($src)) {
-        if (array_key_exists($propertyName, $src)) {
-            return $src[$propertyName];
-        }
-    } elseif (is_object($src)) {
-        if (isset($src->{$propertyName})) {
-            // if it's not magic method, return reference
-            if (property_exists($src, $propertyName)) {
-                return $src->{$propertyName};
-                // otherwise (it's __get()) calling $src->{$propertyName} will generate PHP notice:
-                // indirect modification of overloaded property has no effect.
-                // Therefore we return link to temp variable instead of link to variable itself.
-            } else {
-                $tmp = $src->{$propertyName};
-                return $tmp;
-            }
-        }
+    if ($isObject) {
         $camelPropName = Str::toCamelCase($propertyName);
         $methods = [
             'get' . $camelPropName,
